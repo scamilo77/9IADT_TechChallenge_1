@@ -24,20 +24,23 @@ def clean_diabetes_data(df: pd.DataFrame) -> pd.DataFrame:
 
     if not isinstance(df, pd.DataFrame):
         raise TypeError("Input must be a pandas DataFrame.")
+    
+    df = df.copy(deep=True)
 
-    df_cleaned = df.copy(deep=True)
-
+    # Substitui zeros por NaN nas colunas relevantes
     for col in DIABETES_ZERO_AS_MISSING:
-        df_cleaned[col] = (
-            df_cleaned[col]
-            .mask(df_cleaned[col] == 0, np.nan)
-            .fillna(df_cleaned[col].median())
-        )
+        df[col] = df[col].replace(0, np.nan)
+
+    # Preenche NaN com a mediana da coluna
+    for col in DIABETES_ZERO_AS_MISSING:
+        median_value = df[col].median()
+        df[col].fillna(median_value, inplace=True)
+
 
     dir = os.path.join(PROCESSED_DATA_DIR, "diabetes-data-set")
     os.makedirs(dir, exist_ok=True)
-    df_cleaned.to_csv(os.path.join(PROCESSED_DATA_DIR, "diabetes-data-set", "diabetes.csv"), index=False)
-    return df_cleaned   
+    df.to_csv(os.path.join(PROCESSED_DATA_DIR, "diabetes-data-set", "diabetes.csv"), index=False)
+    return df   
 
 def split_diabetes_data(df: pd.DataFrame, target_column: str) -> Tuple[pd.DataFrame, pd.Series]:
     X = df.drop(columns=["Outcome"])
