@@ -52,16 +52,14 @@ def split_diabetes_data(df: pd.DataFrame, target_column: str) -> Tuple[pd.DataFr
 #-------------------------------------------------
 
 def clean_breast_cancer_data(df: pd.DataFrame) -> pd.DataFrame:
-    df = df.copy(deep=True)
+    df = df.copy(deep=True)  
+    
+    # Remove colunas irrelevantes se existirem
+    cols_to_drop = ["id", "Unnamed: 32"]
+    df.drop(columns=[c for c in cols_to_drop if c in df.columns], inplace=True)
 
-    if "id" in df.columns:
-        df.drop(columns=["id"])
-
-    df = df.dropna(axis=1, how="all")
-
-    if "diagnosis" in df.columns:
-        df["diagnosis"] = df["diagnosis"].map({"M": 1, "B": 0})
-
+    # Converte diagnóstico para binário
+    df["diagnosis"] = df["diagnosis"].map({"M": 1, "B": 0})
 
     dir = os.path.join(PROCESSED_DATA_DIR, "breast-cancer-wisconsin-data")
     os.makedirs(dir, exist_ok=True)
